@@ -1,52 +1,33 @@
 #!flask/bin/python
-
+from graph import RandomGraph
 from flask import Flask, jsonify, make_response, abort, request
 
 app = Flask(__name__)
 
-tasks = [
-    {
-        'id': 1,
-        'title': u'buy groceries',
-        'description': u'milk, cheese, pizza, fruit, tylenol',
-        'done': False
-    },
-    {
-        'id': 2,
-        'title': u'learn python',
-        'description': u'need to find a good python tutorial on the web',
-        'done': False
-    }
-]
+graphs = []
 
-@app.route('/todo/api/v1.0/tasks', methods=['GET'])
-def get_tasks():
-    return jsonify({'tasks': tasks})
+@app.route('/graph/api/v1.0/all', methods=['GET'])
+def get_graphs():
+    return jsonify({'graphs': graphs})
 
-@app.route('/todo/api/v1.0/tasks/<int:task_id>', methods=['GET'])
-def get_task(task_id):
-    task = filter(lambda t: t['id'] == task_id, tasks)
+@app.route('/graph/api/v1.0/instance/<int:task_id>', methods=['GET'])
+def get_graph(graph_id):
+    task = filter(lambda t: t['id'] == graph_id, graphs)
     if len(task) == 0:
         abort(404)
-    return jsonify({'task': task[0]})
+    return jsonify({'graphs': graphs[0]})
 
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
-@app.route('/todo/api/v1.0/tasks', methods=['POST'])
-def create_task():
-    if not request.json or not 'title' in request.json:
+@app.route('/graph/api/v1.0/', methods=['POST'])
+def create_graph():
+    if not request.json or not 'size' in request.json:
         abort(400)
-    task = {
-        'id': tasks[-1]['id'] + 1,
-        'title': request.json['title'],
-        'description': request.json.get('description', ""),
-        'done': False
-        
-        }
-    tasks.append(task)
-    return jsonify({'task': task}), 201
+    graph_obj = RandomGraph(request.json['size'])
+    graphs.append(graph_obj.graph)
+    return jsonify({'graph': graph_obj.graph}), 201
 
 if __name__ == '__main__':
     app.run(debug=True)
