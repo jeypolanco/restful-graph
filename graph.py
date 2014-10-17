@@ -1,16 +1,11 @@
 import random
+import itertools
 
-class RandomGraph(object):
-    def __init__(self, vertices_num):
-        self.vertices = xrange(vertices_num)
-        self.graph = dict(enumerate(self.edges(vertices_num)))
-
-    def edges(self, vert_num):
-        # Maps each possible vertice to a list of possible adjacent vertices.
-        # The lambda ensures that the vertice being mapped isn't included as a
-        # possible adjacent vertice
-        verts = map(lambda x: (y for y in xrange(vert_num) if x != y), xrange(vert_num))
-        for edges in verts:
-            # Yields a list of vertices connected to single vertex.  The lambda
-            # function filters the possible vertices randomly.
-            yield filter(lambda x: random.choice([True, False]), edges)
+def random_edges(vertices_num, edge_num):
+    # the random edges must not repeat (i, e) != (e, i), a vertice cannot
+    # touch itself ! (i, i)
+    combinations = itertools.combinations(xrange(vertices_num), 2)
+    # randomly choose amongst the combinations and don't repeat        
+    edges = random.sample(list(combinations), edge_num)
+    for edge in edges:
+        yield edge
